@@ -4,17 +4,21 @@ import solc from 'solc'
 export const compile = async () => {
     if (typeof process.argv[2] === 'undefined')
         throw new Error('please provide contract directory path')
-    const contracts = await getContractFiles(process.argv[2])
+
+    const contractsPath = process.argv[2]
+
+    const contracts = await getContractFiles(contractsPath)
 
     const contractsData = {}
     await Promise.all(
         contracts.map(async contract => {
-            const contractData = await getContractData(process.argv[2], contract)
+            const contractData = await getContractData(contractsPath, contract)
             contractsData[contract] = contractData
         })
     )
 
     const compiledData = await compileContracts(contractsData)
+
     await writeCompiledData(compiledData)
 }
 
