@@ -15,6 +15,7 @@ export const compile = async () => {
     )
 
     const compiledData = await compileContracts(contractsData)
+    await writeCompiledData(compiledData)
 }
 
 const getContractFiles = async (contractPath) => {
@@ -50,4 +51,15 @@ const compileContracts = async (contractsData) => {
     }
 }
 
+const writeCompiledData = async (compiledData) => {
+    try {
+        await fs.writeFile(
+            `${process.cwd()}/contracts/compiled.json`,
+            JSON.stringify(compiledData))
+    } catch (err) {
+        throw new Error('could not write compiled data to json file', err)
+    }
+}
+
 compile()
+.catch(err => console.log('error compiling contracts', err))
