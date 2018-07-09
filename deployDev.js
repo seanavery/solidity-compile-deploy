@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs'
+import { providers } from 'ethers'
 
 const deployContracts = async () => {
     const contractsPath = process.argv[2]
@@ -6,6 +7,8 @@ const deployContracts = async () => {
         throw new Error('please provide contract directory path')
 
     const compiledData = await readCompiledData(contractsPath)
+
+    const providers = initProvider()
 
     await Promise.all(
         Object.keys(compiledData.contracts)
@@ -24,6 +27,11 @@ const readCompiledData = async (contractsPath) => {
 
 const deployContract = async (contract) => {
     console.log('contract', contract)
+}
+
+const initProvider = () => {
+    const network = providers.networks.ropsten
+    return new providers.InfuraProvider(network)
 }
 
 deployContracts()
