@@ -1,5 +1,8 @@
 import { promises as fs } from 'fs'
 import { providers } from 'ethers'
+import { config } from './deploy.config.js'
+
+console.log('config', config)
 
 const deployContracts = async () => {
     const contractsPath = process.argv[2]
@@ -8,12 +11,14 @@ const deployContracts = async () => {
 
     const compiledData = await readCompiledData(contractsPath)
 
-    const providers = initProvider()
+    const provider = initProvider()
+    console.log('provider', provider)
 
-    await Promise.all(
-        Object.keys(compiledData.contracts)
-            .map(async contract => {
-                await deployContract(compiledData.contracts[contract])}))
+    s
+    // await Promise.all(
+    //     Object.keys(compiledData.contracts)
+    //         .map(async contract => {
+    //             await deployContract(compiledData.contracts[contract])}))
 }
 
 const readCompiledData = async (contractsPath) => {
@@ -26,7 +31,7 @@ const readCompiledData = async (contractsPath) => {
 }
 
 const deployContract = async (contract) => {
-    console.log('contract', contract)
+    // console.log('contract', contract)
 }
 
 const initProvider = () => {
