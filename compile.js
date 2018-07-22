@@ -1,79 +1,69 @@
-import Promise from 'bluebird';
-import Eth from 'ethjs';
-import solc from 'solc';
+import { promises as fs } from 'fs'
+import solc from 'solc'
 
-const fs = Promise.promisifyAll(require('fs'));
-const jsonfile = Promise.promisifyAll(require('jsonfile'));
+export const compile = async () => {
+    if (typeof process.argv[2] === 'undefined')
+        throw new Error('please provide contract directory path')
 
-export let sources = new Object();
-export let compiled;
+    const contractsPath = process.argv[2]
 
-export function compile() {
-  return new Promise((resolve, reject) => {
-    Promise.resolve(getContractFiles())
-    .map((file) => {
-      return getContractData(file);
-    }).then(() => {
-      return solcCompile();
-    }).then(() => {
-      return writeCompiledFile();
-    }).then(() => {
+    const contracts = await getContractFiles(contractsPath)
 
-    }).catch((error) => {
-      reject(error);
-    })
-  });
+    const contractsData = {}
+    await Promise.all(
+        contracts.map(async contract => {
+            const contractData = await getContractData(contractsPath, contract)
+            contractsData[contract] = contractData
+        })
+    )
+
+    const compiledData = await compileContracts(contractsData)
+
+    await writeCompiledData(compiledData)
 }
 
-export function getContractFiles() {
-  return new Promise((resolve, reject) => {
-    let files = [];
-    console.log('cwd', process.cwd());
-    fs.readdirAsync(`${process.cwd()}/EVM/contracts`)
-    .map((file) => {
-      files.push(file)
-    }).then(() => {
-      resolve(files);
-    }).catch((error) => {
-      reject(error);
-    });
-  });
+const getContractFiles = async (contractPath) => {
+    try {
+        await fs.stat(contractPath)
+    } catch (err) {
+        throw new Error(`no directory at ${process.cwd()}/${contractPath}`)
+    }
+
+    try {
+        const contracts = await fs.readdir(`${process.cwd()}/contracts`)
+        return contracts
+    } catch (err) {
+        throw new Error('could not read contract files')
+    }
 }
 
-export function getContractData(file) {
-  return new Promise((resolve, reject) => {
-    fs.readFileAsync(`${process.cwd()}/EVM/contracts/${file}`, 'utf8')
-    .then((data) => {
-      sources[file] = data.toString();
-      resolve(data);
-    }).catch((error) => {
-      reject(error);
-    });
-  });
+const getContractData = async (contractPath, contract) => {
+    try {
+        const data = await fs.readFile(`${process.cwd()}/${contractPath}/${contract}`, 'utf8')
+        return data.toString()
+    } catch (err) {
+        throw new Error('could not read contract file')
+    }
 }
 
-export function solcCompile() {
-  return new Promise((resolve, reject) => {
-    Promise.resolve(solc.compile({sources: sources}, 1))
-    .then((data) => {
-      compiled = data;
-      resolve(compiled);
-    }).catch((error) => {
-      reject(error);
-    });
-  });
+const compileContracts = async (contractsData) => {
+    try {
+        const compiledData = await solc.compile({sources: contractsData}, 1)
+        return compiledData
+    } catch (err) {
+        throw new Error('could not compile contract', err)
+    }
 }
 
-export function writeCompiledFile() {
-  return new Promise((resolve, reject) => {
-      Promise.resolve(jsonfile.writeFileAsync(`${process.cwd()}/EVM/compiled/compiled.json`, compiled))
-      .then(() => {
-        console.log('Compiled output saved in compiled.json');
-        resolve(true);
-      }).catch((error) => {
-        reject(error);
-      });
-  })
+const writeCompiledData = async (compiledData) => {
+    try {
+        await fs.writeFile(
+            `${process.cwd()}/contracts/compiled.json`,
+            JSON.stringify(compiledData))
+    } catch (err) {
+        throw new Error('could not write compiled data to json file', err)
+    }
 }
 
-compile();
+compile()
+.catch(err => console.log('error compiling contracts', err))
