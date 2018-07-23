@@ -3,9 +3,8 @@ import solc from 'solc'
 import { config } from './deploy.config.js'
 
 export const compile = async () => {
-    const contractsPath = config.contracstDir
+    const contractsPath = config.contractsDir
 
-    console.log('contractsPath', contractsPath)
     await checkContractsPath(contractsPath)
 
     const contracts = await getContractFiles(contractsPath)
@@ -24,6 +23,7 @@ export const compile = async () => {
 }
 
 const checkContractsPath = async (contractsPath) => {
+    console.log('contractsPath', contractsPath)
     try {
         const stats = await fs.stat(contractsPath)
     } catch (err) {
