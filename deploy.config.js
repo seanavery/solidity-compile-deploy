@@ -1,5 +1,5 @@
 export const config = {
-  contractDir: 'contracts',
+  contractsDir: 'contracts',
   network: 'ropsten',
   contracts: ['BasicToken'],
 }
