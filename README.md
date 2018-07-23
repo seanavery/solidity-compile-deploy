@@ -1,3 +1,5 @@
+wip.
+
 # solidity-compile-deploy
 #### :Minimal JS compile/deploy harness for solidity contracts
 
@@ -12,14 +14,18 @@ ____
 2. Add your `.sol` files into the contract folder container
 3. `touch deploy.config.js` into the root of your poject
 
-#### Config Schema
 ```
 {
   network: [string], (main, ropsten, rinkeby)
-  contracts: [array]
+  contracts: [array], (ERC20.sol)
 }
 ```
+
 #### Run
 1. `npm run compile [contract_dir_name]`
 2. `npm run create-wallet`
 3. `npm run deploy`
+
+
+*WARNING: Private key saved to local json file wallet.json
+Do not push file to github or share in anyway if dealing with main-net eth*
