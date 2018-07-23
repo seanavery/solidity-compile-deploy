@@ -1,28 +1,29 @@
 import { promises as fs } from 'fs'
 import { providers } from 'ethers'
 import { config } from './deploy.config.js'
+import wallet from './wallet.json'
 
 const deployContracts = async () => {
-    const contractsPath = process.argv[2]
-    if (typeof contractsPath === 'undefined')
-        throw new Error('please provide contract directory path')
+    const contractsPath = config.contractsDir
+    await checkContractsPath(contractsPath)
 
     const compiledData = await readCompiledData(contractsPath)
 
     const provider = initProvider()
-
-    console.log('provider', provider)
-
-    // await Promise.all(
-    //     Object.keys(compiledData.contracts)
-    //         .map(async contract => {
-    //             await deployContract(compiledData.contracts[contract])}))
-
+    
     await Promise.all(
         config.contracts.map(async contract => {
-            await deployContract(contract)
+            await deployContract(contract.concat(`.sol:${contract}`), compiledData)
         })
     )
+}
+
+const checkContractsPath = async (contractsPath) => {
+    try {
+        const stats = await fs.stat(contractsPath)
+    } catch (err) {
+        throw new Error(`contract path '${contractsPath}' does not exist`, err)
+    }
 }
 
 const readCompiledData = async (contractsPath) => {
@@ -34,12 +35,15 @@ const readCompiledData = async (contractsPath) => {
     }
 }
 
-const deployContract = async (contract) => {
-    try {
-
-    } catch {
-        throw new Error(`error deployin contract ${contract}`, err)
-    }
+const deployContract = async (contract, compiledData) => {
+    console.log('compiledData.contracts', compiledData.contracts[contract].bytecode)
+    console.log('contract', contract)
+    // console.log('contracts[contracts]', compiledData.contracts[contract])
+    // try {
+    //     console.log('contracts[contracts]', contracts[contract])
+    // } catch {
+    //     throw new Error(`error deploying contract ${contract}`, err)
+    // }
 }
 
 const initProvider = () => {
