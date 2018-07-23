@@ -1,11 +1,9 @@
 import { promises as fs } from 'fs'
 import solc from 'solc'
+import { config } from './deploy.config.js'
 
 export const compile = async () => {
-    if (typeof process.argv[2] === 'undefined')
-        throw new Error('please provide contract directory path')
-
-    const contractsPath = process.argv[2]
+    const contractsPath = config.contractDir
 
     const contracts = await getContractFiles(contractsPath)
 

@@ -2,9 +2,11 @@
   "name": "solidity-compile-deploy",
   "version": "0.0.1",
   "description": "Compile and Deploy Utilities for Solidity",
-  "main": "compile.js",
+  "main": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "babel-node compile.js",
+    "create-wallet": "babel-node wallet.js",
+    "deploy": "babel-node deploy.js"
   },
   "repository": {
     "type": "git",
